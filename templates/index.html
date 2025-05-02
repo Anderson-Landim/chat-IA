@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanchonete Virtual - WhatsApp</title>
+    <style>
+        body {
+            background-color: #e5ddd5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #075e54;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #chat {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 10px #ccc;
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .mensagem {
+            margin: 10px 0;
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 8px;
+            line-height: 1.4;
+            display: inline-block;
+            clear: both;
+        }
+
+        .usuario {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            float: right;
+        }
+
+        .atendente {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            float: left;
+        }
+
+        #consultaForm {
+            max-width: 500px;
+            margin: 10px auto 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #25d366;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #128c7e;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍔 Atendente Virtual da Lanchonete 🍟</h1>
+
+    <div id="chat"></div>
+
+    <form id="consultaForm">
+        <input type="text" id="pergunta" name="pergunta" placeholder="Digite sua mensagem..." required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script>
+        const chat = document.getElementById("chat");
+
+        function adicionarMensagem(texto, classe) {
+            const msg = document.createElement("div");
+            msg.className = "mensagem " + classe;
+            msg.innerText = texto;
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        document.getElementById("consultaForm").onsubmit = function(event) {
+            event.preventDefault();
+            const input = document.getElementById("pergunta");
+            const pergunta = input.value.trim();
+
+            if (pergunta === "") return;
+
+            adicionarMensagem(pergunta, "usuario");
+            input.value = "";
+
+            fetch("/consulta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `pergunta=${encodeURIComponent(pergunta)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                adicionarMensagem(data.resposta, "atendente");
+            });
+        };
+    </script>
+</body>
+</html>
